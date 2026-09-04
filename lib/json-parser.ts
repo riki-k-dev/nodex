@@ -1,12 +1,12 @@
 import { Node, Edge } from "@xyflow/react";
+import { getLayoutedElements } from "./layout-engine";
 
 export function parseJsonToGraph(jsonString: string) {
-  const nodes: Node[] = [];
-  const edges: Edge[] = [];
+  const rawNodes: Node[] = [];
+  const rawEdges: Edge[] = [];
 
   try {
     const parsedData = JSON.parse(jsonString);
-    let currentY = 0;
 
     function traverse(
       data: unknown,
@@ -20,10 +20,10 @@ export function parseJsonToGraph(jsonString: string) {
       const isArray = Array.isArray(data);
       const isObject = typeof data === "object" && !isNull && !isArray;
 
-      nodes.push({
+      rawNodes.push({
         id: nodeId,
         type: "jsonNode",
-        position: { x: depth * 350, y: currentY },
+        position: { x: 0, y: 0 }, // Position will be overwritten by Dagre
         data: {
           label: keyName,
           value: isObject ? "{Object}" : isArray ? "[Array]" : String(data),
@@ -31,10 +31,8 @@ export function parseJsonToGraph(jsonString: string) {
         },
       });
 
-      currentY += 80;
-
       if (parentId) {
-        edges.push({
+        rawEdges.push({
           id: `e-${parentId}-${nodeId}`,
           source: parentId,
           target: nodeId,
@@ -60,7 +58,9 @@ export function parseJsonToGraph(jsonString: string) {
     traverse(parsedData, null, 0);
   } catch (e) {
     console.error("JSON parsing error:", e);
+    return { nodes: [], edges: [] };
   }
 
-  return { nodes, edges };
+  // Pass the raw arrays into Dagre before returning
+  return getLayoutedElements(rawNodes, rawEdges);
 }

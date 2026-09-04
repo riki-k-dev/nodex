@@ -6,16 +6,37 @@ import {
   Background,
   Controls,
   BackgroundVariant,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useGraphStore } from "@/store/graph-store";
 import { JsonNode } from "./JsonNode";
 import { useTheme } from "next-themes";
 
-// Register custom node types
 const nodeTypes = {
   jsonNode: JsonNode,
 };
+
+// Internal component to handle smooth panning/zooming
+function FocusController() {
+  const focusedNodeId = useGraphStore((state) => state.focusedNodeId);
+  const setFocusedNodeId = useGraphStore((state) => state.setFocusedNodeId);
+  const { setCenter, getNode } = useReactFlow();
+
+  useEffect(() => {
+    if (focusedNodeId) {
+      const node = getNode(focusedNodeId);
+      if (node) {
+        const x = node.position.x + 100;
+        const y = node.position.y + 40;
+        setCenter(x, y, { zoom: 1.5, duration: 800 });
+      }
+      setFocusedNodeId(null);
+    }
+  }, [focusedNodeId, getNode, setCenter, setFocusedNodeId]);
+
+  return null;
+}
 
 export function GraphCanvas() {
   const nodes = useGraphStore((state) => state.nodes);
@@ -50,6 +71,7 @@ export function GraphCanvas() {
         colorMode={isDark ? "dark" : "light"}
         proOptions={{ hideAttribution: true }}
       >
+        <FocusController />
         <Background
           variant={BackgroundVariant.Dots}
           gap={16}
