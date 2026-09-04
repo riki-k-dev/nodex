@@ -1,11 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { CornerBox } from "@/components/ui/CornerBox";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { JsonEditor } from "@/components/editor/JsonEditor";
 import { GraphCanvas } from "@/components/graph/GraphCanvas";
 import { useGraphStore } from "@/store/graph-store";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Maximize2, Minimize2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+type ViewMode = "split" | "editor" | "graph";
 
 export function WorkspaceLayout() {
   const jsonText = useGraphStore((state) => state.jsonText);
@@ -13,10 +17,12 @@ export function WorkspaceLayout() {
   const isValidJson = useGraphStore((state) => state.isValidJson);
   const parseError = useGraphStore((state) => state.parseError);
 
+  const [viewMode, setViewMode] = useState<ViewMode>("split");
+
   return (
-    <div className="min-h-screen w-full bg-zinc-100 dark:bg-black text-zinc-900 dark:text-zinc-100 flex flex-col font-mono transition-colors duration-200 relative">
-      {/* Minimal Header */}
-      <header className="h-14 border-b border-zinc-300 dark:border-zinc-900 px-6 flex items-center justify-between bg-white dark:bg-black/50 backdrop-blur-md">
+    <div className="h-screen w-full bg-zinc-100 dark:bg-black text-zinc-900 dark:text-zinc-100 flex flex-col font-mono transition-colors duration-200 overflow-hidden">
+      {/* Header */}
+      <header className="h-14 border-b border-zinc-300 dark:border-zinc-900 px-6 flex items-center justify-between bg-white dark:bg-black/50 backdrop-blur-md shrink-0 z-30">
         <div className="flex items-center gap-4">
           <div className="w-3 h-3 bg-orange-500 rounded-none shadow-[0_0_8px_rgba(249,115,22,0.5)]"></div>
           <h1 className="text-sm font-bold tracking-wider uppercase text-zinc-800 dark:text-zinc-200">
@@ -31,45 +37,99 @@ export function WorkspaceLayout() {
         </div>
       </header>
 
-      {/* Main Split View */}
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 md:p-6 lg:p-8">
-        {/* Editor Side */}
-        <CornerBox className="h-[calc(100vh-8rem)] flex flex-col">
-          <div className="border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-4 flex justify-between items-center shrink-0">
-            <h2 className="text-xs font-bold uppercase text-zinc-700 dark:text-zinc-300 tracking-widest">
-              Editor
-            </h2>
-            <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-              payload.json
-            </span>
-          </div>
-          <div className="flex-1 w-full h-full bg-white dark:bg-[#1e1e1e] border border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden">
-            <JsonEditor
-              value={jsonText}
-              onChange={(val) => setJsonText(val || "")}
-            />
-          </div>
-        </CornerBox>
+      {/* Main Workspace Area */}
+      <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 md:p-6 lg:p-8 min-h-0 overflow-hidden relative">
+        <AnimatePresence initial={false}>
+          {/* Editor Panel */}
+          {(viewMode === "split" || viewMode === "editor") && (
+            <motion.div
+              key="editor-panel"
+              layout
+              initial={{ opacity: 0, flex: 0 }}
+              animate={{ opacity: 1, flex: 1 }}
+              exit={{ opacity: 0, flex: 0, padding: 0, margin: 0 }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              className="min-w-0 min-h-0 flex flex-col overflow-hidden"
+            >
+              <CornerBox className="flex-1 flex flex-col min-h-0">
+                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-4 flex justify-between items-center shrink-0">
+                  <h2 className="text-xs font-bold uppercase text-zinc-700 dark:text-zinc-300 tracking-widest">
+                    Editor
+                  </h2>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                      payload.json
+                    </span>
+                    <button
+                      onClick={() =>
+                        setViewMode(viewMode === "editor" ? "split" : "editor")
+                      }
+                      className="p-1 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
+                    >
+                      {viewMode === "editor" ? (
+                        <Minimize2 className="w-3.5 h-3.5" />
+                      ) : (
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 w-full min-h-0 bg-white dark:bg-[#1e1e1e] border border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden flex flex-col">
+                  <JsonEditor
+                    value={jsonText}
+                    onChange={(val) => setJsonText(val || "")}
+                  />
+                </div>
+              </CornerBox>
+            </motion.div>
+          )}
 
-        {/* Graph Visualizer Side */}
-        <CornerBox className="h-[calc(100vh-8rem)] flex flex-col">
-          <div className="border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-4 flex justify-between items-center shrink-0">
-            <h2 className="text-xs font-bold uppercase text-zinc-700 dark:text-zinc-300 tracking-widest">
-              Graph Engine
-            </h2>
-            <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-              Node View
-            </span>
-          </div>
-          <div className="flex-1 w-full h-full border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden">
-            <GraphCanvas />
-          </div>
-        </CornerBox>
+          {/* Graph Engine Panel */}
+          {(viewMode === "split" || viewMode === "graph") && (
+            <motion.div
+              key="graph-panel"
+              layout
+              initial={{ opacity: 0, flex: 0 }}
+              animate={{ opacity: 1, flex: 1 }}
+              exit={{ opacity: 0, flex: 0, padding: 0, margin: 0 }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              className="min-w-0 min-h-0 flex flex-col overflow-hidden"
+            >
+              <CornerBox className="flex-1 flex flex-col min-h-0">
+                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-4 flex justify-between items-center shrink-0">
+                  <h2 className="text-xs font-bold uppercase text-zinc-700 dark:text-zinc-300 tracking-widest">
+                    Graph Engine
+                  </h2>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                      Node View
+                    </span>
+                    <button
+                      onClick={() =>
+                        setViewMode(viewMode === "graph" ? "split" : "graph")
+                      }
+                      className="p-1 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
+                    >
+                      {viewMode === "graph" ? (
+                        <Minimize2 className="w-3.5 h-3.5" />
+                      ) : (
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 w-full min-h-0 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden flex flex-col bg-zinc-50 dark:bg-[#0c0c0c]">
+                  <GraphCanvas />
+                </div>
+              </CornerBox>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Floating Error Badge */}
       {!isValidJson && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
           <div className="flex flex-col items-center gap-1 px-6 py-3 bg-zinc-50 dark:bg-[#0a0a0a] text-red-600 dark:text-red-500 border-2 border-dashed border-red-500/50 rounded-none font-medium shadow-2xl">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4" />

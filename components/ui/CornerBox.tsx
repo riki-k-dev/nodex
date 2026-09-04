@@ -20,41 +20,40 @@ export function CornerBox({
   return (
     <div
       className={cn(
-        "relative bg-white dark:bg-[#0a0a0a] border border-zinc-300 dark:border-zinc-800/80 shadow-sm dark:shadow-none transition-colors",
+        "relative bg-white dark:bg-[#0a0a0a] border border-zinc-300 dark:border-zinc-800/80 shadow-sm dark:shadow-none transition-colors flex flex-col",
         className,
       )}
     >
-      {/* Top Left Corner */}
+      {/* Corners */}
       <div
         className={cn(
-          "absolute top-[-1px] left-[-1px] w-5 h-5 border-t-2 border-l-2 pointer-events-none",
+          "absolute top-[-1px] left-[-1px] w-5 h-5 border-t-2 border-l-2 pointer-events-none z-20",
           cornerColor,
         )}
       />
-      {/* Top Right Corner */}
       <div
         className={cn(
-          "absolute top-[-1px] right-[-1px] w-5 h-5 border-t-2 border-r-2 pointer-events-none",
+          "absolute top-[-1px] right-[-1px] w-5 h-5 border-t-2 border-r-2 pointer-events-none z-20",
           cornerColor,
         )}
       />
-      {/* Bottom Left Corner */}
       <div
         className={cn(
-          "absolute bottom-[-1px] left-[-1px] w-5 h-5 border-b-2 border-l-2 pointer-events-none",
+          "absolute bottom-[-1px] left-[-1px] w-5 h-5 border-b-2 border-l-2 pointer-events-none z-20",
           cornerColor,
         )}
       />
-      {/* Bottom Right Corner */}
       <div
         className={cn(
-          "absolute bottom-[-1px] right-[-1px] w-5 h-5 border-b-2 border-r-2 pointer-events-none",
+          "absolute bottom-[-1px] right-[-1px] w-5 h-5 border-b-2 border-r-2 pointer-events-none z-20",
           cornerColor,
         )}
       />
 
       {/* Content wrapper */}
-      <div className="h-full w-full p-4 overflow-hidden">{children}</div>
+      <div className="flex-1 w-full p-4 flex flex-col min-h-0 overflow-hidden">
+        {children}
+      </div>
     </div>
   );
 }
