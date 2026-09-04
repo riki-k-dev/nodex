@@ -3,6 +3,7 @@
 import { CornerBox } from "@/components/ui/CornerBox";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { JsonEditor } from "@/components/editor/JsonEditor";
+import { GraphCanvas } from "@/components/graph/GraphCanvas";
 import { useGraphStore } from "@/store/graph-store";
 import { AlertCircle } from "lucide-react";
 
@@ -60,8 +61,8 @@ export function WorkspaceLayout() {
               Node View
             </span>
           </div>
-          <div className="flex-1 flex items-center justify-center text-zinc-600 dark:text-zinc-400 font-medium text-sm border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-[#0c0c0c] transition-colors rounded-sm overflow-hidden">
-            [ React Flow Canvas ]
+          <div className="flex-1 w-full h-full border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden">
+            <GraphCanvas />
           </div>
         </CornerBox>
       </main>

@@ -9,6 +9,7 @@ import {
   applyNodeChanges,
   applyEdgeChanges,
 } from "@xyflow/react";
+import { parseJsonToGraph } from "@/lib/json-parser";
 
 const DEFAULT_JSON = `{
   "project": "JSON Graph Visualizer",
@@ -35,21 +36,34 @@ export interface GraphState {
   setEdges: (edges: Edge[]) => void;
 }
 
+const initialGraph = parseJsonToGraph(DEFAULT_JSON);
+
 export const useGraphStore = create<GraphState>((set, get) => ({
   jsonText: DEFAULT_JSON,
   isValidJson: true,
   parseError: null,
 
+  nodes: initialGraph.nodes,
+  edges: initialGraph.edges,
+
   setJsonText: (text: string) => {
     let isValid = false;
     let error: string | null = null;
+    let newNodes = get().nodes;
+    let newEdges = get().edges;
 
     try {
       if (text.trim() !== "") {
         JSON.parse(text);
         isValid = true;
+
+        const graph = parseJsonToGraph(text);
+        newNodes = graph.nodes;
+        newEdges = graph.edges;
       } else {
         isValid = true;
+        newNodes = [];
+        newEdges = [];
       }
     } catch (e: unknown) {
       if (e instanceof Error) {
@@ -63,11 +77,10 @@ export const useGraphStore = create<GraphState>((set, get) => ({
       jsonText: text,
       isValidJson: isValid,
       parseError: error,
+      nodes: newNodes,
+      edges: newEdges,
     });
   },
-
-  nodes: [],
-  edges: [],
 
   onNodesChange: (changes: NodeChange[]) => {
     set({ nodes: applyNodeChanges(changes, get().nodes) });
