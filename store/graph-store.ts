@@ -56,6 +56,8 @@ export interface GraphState {
 
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
+
+  updateNodeValue: (path: string[], newValue: unknown) => void;
 }
 
 const initialGraph = parseJsonToGraph(DEFAULT_JSON);
@@ -132,6 +134,27 @@ export const useGraphStore = create<GraphState>()(
           };
 
           worker.postMessage({ text });
+        }
+      },
+
+      updateNodeValue: (path: string[], newValue: unknown) => {
+        const currentJson = get().jsonText;
+        try {
+          const obj = JSON.parse(currentJson);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          let current: any = obj;
+
+          for (let i = 0; i < path.length - 1; i++) {
+            current = current[path[i]];
+          }
+
+          const targetKey = path[path.length - 1];
+          current[targetKey] = newValue;
+
+          const newJsonText = JSON.stringify(obj, null, 2);
+          get().setJsonText(newJsonText);
+        } catch (error) {
+          console.error("Failed to update node value", error);
         }
       },
 

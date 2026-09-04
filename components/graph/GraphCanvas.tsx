@@ -17,7 +17,6 @@ const nodeTypes = {
   jsonNode: JsonNode,
 };
 
-// Internal component to handle smooth panning/zooming
 function FocusController() {
   const focusedNodeId = useGraphStore((state) => state.focusedNodeId);
   const setFocusedNodeId = useGraphStore((state) => state.setFocusedNodeId);
@@ -70,6 +69,7 @@ export function GraphCanvas() {
         fitView
         colorMode={isDark ? "dark" : "light"}
         proOptions={{ hideAttribution: true }}
+        panActivationKeyCode={null}
       >
         <FocusController />
         <Background
@@ -78,7 +78,7 @@ export function GraphCanvas() {
           size={1}
           color={isDark ? "#27272a" : "#e4e4e7"}
         />
-        <Controls className="!mb-6 !ml-2 !bg-white dark:!bg-[#121212] !border-zinc-300 dark:!border-zinc-800 !rounded-none !shadow-none [&>button]:!border-zinc-200 dark:[&>button]:!border-zinc-800 [&>button]:!text-zinc-700 dark:[&>button]:!text-zinc-300" />
+        <Controls className="mb-6! ml-2! bg-white! dark:bg-[#121212]! border-zinc-300! dark:border-zinc-800! rounded-none! shadow-none! [&>button]:border-zinc-200! dark:[&>button]:border-zinc-800! [&>button]:text-zinc-700! dark:[&>button]:text-zinc-300!" />
       </ReactFlow>
     </div>
   );
