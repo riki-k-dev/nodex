@@ -1,7 +1,10 @@
 import { Node, Edge } from "@xyflow/react";
 import { getLayoutedElements } from "./layout-engine";
 
-export function parseJsonToGraph(jsonString: string) {
+export function parseJsonToGraph(
+  jsonString: string,
+  collapsedIds: string[] = [],
+) {
   const rawNodes: Node[] = [];
   const rawEdges: Edge[] = [];
 
@@ -22,6 +25,12 @@ export function parseJsonToGraph(jsonString: string) {
       const isArray = Array.isArray(data);
       const isObject = typeof data === "object" && !isNull && !isArray;
 
+      const isExpandable =
+        (isObject && Object.keys(data as Record<string, unknown>).length > 0) ||
+        (isArray && (data as unknown[]).length > 0);
+
+      const isCollapsed = collapsedIds.includes(nodeId);
+
       rawNodes.push({
         id: nodeId,
         type: "jsonNode",
@@ -31,6 +40,8 @@ export function parseJsonToGraph(jsonString: string) {
           value: isObject ? "{Object}" : isArray ? "[Array]" : String(data),
           type: isNull ? "null" : typeof data,
           path: currentPath,
+          isExpandable,
+          isCollapsed,
         },
       });
 
@@ -45,16 +56,18 @@ export function parseJsonToGraph(jsonString: string) {
         });
       }
 
-      if (isObject) {
-        Object.entries(data as Record<string, unknown>).forEach(
-          ([key, val]) => {
-            traverse(val, nodeId, depth + 1, key, currentPath);
-          },
-        );
-      } else if (isArray) {
-        (data as unknown[]).forEach((val, index) => {
-          traverse(val, nodeId, depth + 1, String(index), currentPath);
-        });
+      if (isExpandable && !isCollapsed) {
+        if (isObject) {
+          Object.entries(data as Record<string, unknown>).forEach(
+            ([key, val]) => {
+              traverse(val, nodeId, depth + 1, key, currentPath);
+            },
+          );
+        } else if (isArray) {
+          (data as unknown[]).forEach((val, index) => {
+            traverse(val, nodeId, depth + 1, String(index), currentPath);
+          });
+        }
       }
     }
 

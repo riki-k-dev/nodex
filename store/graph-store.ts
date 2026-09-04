@@ -13,17 +13,12 @@ import {
 } from "@xyflow/react";
 import { parseJsonToGraph } from "@/lib/json-parser";
 
-// IndexedDB storage adapter for Zustand
 const idbStorage: StateStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    return (await get(name)) || null;
-  },
-  setItem: async (name: string, value: string): Promise<void> => {
-    await set(name, value);
-  },
-  removeItem: async (name: string): Promise<void> => {
-    await del(name);
-  },
+  getItem: async (name: string): Promise<string | null> =>
+    (await get(name)) || null,
+  setItem: async (name: string, value: string): Promise<void> =>
+    await set(name, value),
+  removeItem: async (name: string): Promise<void> => await del(name),
 };
 
 const DEFAULT_JSON = `{
@@ -58,6 +53,9 @@ export interface GraphState {
   setHasHydrated: (state: boolean) => void;
 
   updateNodeValue: (path: string[], newValue: unknown) => void;
+
+  collapsedIds: string[];
+  toggleNodeCollapse: (id: string) => void;
 }
 
 const initialGraph = parseJsonToGraph(DEFAULT_JSON);
@@ -70,18 +68,16 @@ export const useGraphStore = create<GraphState>()(
       isValidJson: true,
       parseError: null,
       isProcessing: false,
-
       nodes: initialGraph.nodes,
       edges: initialGraph.edges,
       focusedNodeId: null,
-
+      collapsedIds: [],
       _hasHydrated: false,
       setHasHydrated: (state) => set({ _hasHydrated: state }),
 
       setJsonText: (text: string) => {
         let isValid = false;
         let error: string | null = null;
-
         try {
           if (text.trim() !== "") {
             JSON.parse(text);
@@ -90,8 +86,7 @@ export const useGraphStore = create<GraphState>()(
             isValid = true;
           }
         } catch (e: unknown) {
-          if (e instanceof Error) error = e.message;
-          else error = "Invalid JSON syntax";
+          error = e instanceof Error ? e.message : "Invalid JSON syntax";
         }
 
         if (!isValid || text.trim() === "") {
@@ -114,13 +109,11 @@ export const useGraphStore = create<GraphState>()(
         });
 
         if (typeof window !== "undefined") {
-          if (!worker) {
+          if (!worker)
             worker = new Worker(
               new URL("../lib/graph.worker.ts", import.meta.url),
               { type: "module" },
             );
-          }
-
           worker.onmessage = (e) => {
             if (e.data.type === "SUCCESS") {
               set({
@@ -132,8 +125,24 @@ export const useGraphStore = create<GraphState>()(
               set({ isProcessing: false });
             }
           };
+          worker.postMessage({ text, collapsedIds: get().collapsedIds });
+        }
+      },
 
-          worker.postMessage({ text });
+      toggleNodeCollapse: (id: string) => {
+        const current = get().collapsedIds;
+        // Toggle logic
+        const newCollapsed = current.includes(id)
+          ? current.filter((cid) => cid !== id)
+          : [...current, id];
+
+        set({ collapsedIds: newCollapsed, isProcessing: true });
+
+        if (worker) {
+          worker.postMessage({
+            text: get().jsonText,
+            collapsedIds: newCollapsed,
+          });
         }
       },
 
@@ -143,16 +152,10 @@ export const useGraphStore = create<GraphState>()(
           const obj = JSON.parse(currentJson);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let current: any = obj;
+          for (let i = 0; i < path.length - 1; i++) current = current[path[i]];
 
-          for (let i = 0; i < path.length - 1; i++) {
-            current = current[path[i]];
-          }
-
-          const targetKey = path[path.length - 1];
-          current[targetKey] = newValue;
-
-          const newJsonText = JSON.stringify(obj, null, 2);
-          get().setJsonText(newJsonText);
+          current[path[path.length - 1]] = newValue;
+          get().setJsonText(JSON.stringify(obj, null, 2));
         } catch (error) {
           console.error("Failed to update node value", error);
         }
@@ -174,11 +177,10 @@ export const useGraphStore = create<GraphState>()(
         nodes: state.nodes,
         edges: state.edges,
         isValidJson: state.isValidJson,
+        collapsedIds: state.collapsedIds,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state) {
-          state.setHasHydrated(true);
-        }
+        if (state) state.setHasHydrated(true);
       },
     },
   ),

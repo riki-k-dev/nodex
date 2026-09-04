@@ -1,12 +1,12 @@
 import { parseJsonToGraph } from "./json-parser";
 
 self.onmessage = (e: MessageEvent) => {
-  const { text } = e.data;
+  const { text, collapsedIds = [] } = e.data;
 
   try {
-    const { nodes, edges } = parseJsonToGraph(text);
+    const { nodes, edges } = parseJsonToGraph(text, collapsedIds);
     self.postMessage({ type: "SUCCESS", nodes, edges });
-  } catch (error) {
+  } catch {
     self.postMessage({
       type: "ERROR",
       message: "Failed to process graph layout",

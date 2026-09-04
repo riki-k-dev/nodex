@@ -7,12 +7,17 @@ interface JsonNodeData {
   value: unknown;
   type: string;
   path?: string[];
+  isExpandable?: boolean;
+  isCollapsed?: boolean;
 }
 
-export function JsonNode({ data }: { data: JsonNodeData }) {
+export function JsonNode({ id, data }: { id: string; data: JsonNodeData }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(String(data.value));
+
   const updateNodeValue = useGraphStore((state) => state.updateNodeValue);
+  const toggleNodeCollapse = useGraphStore((state) => state.toggleNodeCollapse);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isEditable =
@@ -22,9 +27,7 @@ export function JsonNode({ data }: { data: JsonNodeData }) {
     data.path.length > 0;
 
   useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-    }
+    if (isEditing && inputRef.current) inputRef.current.focus();
   }, [isEditing]);
 
   const handleSave = () => {
@@ -34,7 +37,6 @@ export function JsonNode({ data }: { data: JsonNodeData }) {
       if (data.type === "number") finalValue = Number(editValue);
       if (data.type === "boolean") finalValue = editValue === "true";
       if (data.type === "null") finalValue = null;
-
       updateNodeValue(data.path, finalValue);
     }
   };
@@ -56,10 +58,24 @@ export function JsonNode({ data }: { data: JsonNodeData }) {
       />
 
       <div className="flex flex-col">
-        <div className="px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#1a1a1a] font-bold text-zinc-700 dark:text-zinc-300">
-          {data.label}
+        {/* Header with Label and Collapse Button */}
+        <div className="px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#1a1a1a] flex items-center justify-between">
+          <span className="font-bold text-zinc-700 dark:text-zinc-300">
+            {data.label}
+          </span>
+
+          {data.isExpandable && (
+            <button
+              onClick={() => toggleNodeCollapse(id)}
+              className="ml-3 flex items-center justify-center w-4 h-4 bg-zinc-200 dark:bg-zinc-800 hover:bg-orange-500 hover:text-white text-zinc-600 dark:text-zinc-400 transition-colors text-[10px] font-bold shrink-0 cursor-pointer"
+              title={data.isCollapsed ? "Expand Node" : "Collapse Node"}
+            >
+              {data.isCollapsed ? "+" : "-"}
+            </button>
+          )}
         </div>
 
+        {/* Node Body (Value) */}
         <div
           className={`px-3 py-2 flex items-center justify-between ${isEditable ? "cursor-text hover:bg-zinc-50 dark:hover:bg-[#1a1a1a]" : ""}`}
           onDoubleClick={() => isEditable && setIsEditing(true)}
