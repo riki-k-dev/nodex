@@ -22,7 +22,7 @@ const idbStorage: StateStorage = {
 };
 
 const DEFAULT_JSON = `{
-  "project": "JSON Graph Visualizer",
+  "project": "JSON Visualizer",
   "status": "in-progress",
   "techStack": ["Next.js", "React Flow", "Monaco Editor"],
   "features": {
