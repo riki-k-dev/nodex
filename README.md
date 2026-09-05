@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+#  Nodex
+
+> Stop scrolling through endless JSON strings. Visualize, edit, and share massive data structures instantly.
+
+## What is Nodex
+
+Nodex is a local-first, high-performance developer tool that transforms complex JSON payloads into beautiful, interactive, and editable graph diagrams. Built with a tech-minimalist aesthetic, Nodex processes massive JSON structures directly in your browser without ever sending your sensitive data to a server.
+
+[![Visit Site](public/homepage.png)](https://nodex-jv.vercel.app)
+
+## Features
+
+* **Local-First & Secure**: Zero server calls. All JSON parsing, layout calculations, and state persistence happen entirely within your browser using Web Workers and IndexedDB. Your proprietary data never leaves your machine.
+* **Bidirectional Editing**: Edit values directly on the canvas nodes, or type in the Monaco Editor—changes sync bidirectionally in real-time.
+* **Freeze-Proof UI**: Heavy JSON parsing and Dagre auto-layout calculations are offloaded to a background Web Worker, ensuring the UI remains buttery smooth at 60fps.
+* **Smart Collapsible Nodes**: Effortlessly navigate massive nested objects by collapsing and expanding tree branches. The graph auto-recalculates its layout instantly.
+* **Global Cmd+K Search**: Instantly find specific keys or values across thousands of nodes with a built-in, keyboard-first command palette that auto-focuses the target node.
+* **Shareable Workspaces**: Generate instant, stateless shareable URLs encoding your entire JSON architecture via Base64, or export high-res transparent PNGs of your graph.
+
+## Architecture & Workflow
+
+Nodex utilizes a highly decoupled, reactive architecture to ensure maximum performance and seamless data synchronization.
+
+![Nodex Architecture](public/architecture-workflow.png)
+
+### The Data Flow
+
+1. **Input**: User pastes JSON into the Monaco Editor or loads a Base64 URL.
+2. **Offloading**: Zustand state captures the text and immediately sends it to the Web Worker.
+3. **Processing**: The Worker parses the JSON, calculates deep object paths for editing, applies the `Dagre` directed-graph layout, and returns spatial node coordinates.
+4. **Rendering**: React Flow paints the nodes. Double-clicking a primitive value triggers an update via the object path, automatically stringifying back to the Monaco Editor.
+5. **Persistence**: `idb-keyval` silently commits the graph state to IndexedDB in the background for instant reload recovery.
+
+## Tech Stack
+
+| Category | Technologies |
+| --- | --- |
+| **Framework** | Next.js 16 (App Router), React 19 |
+| **Graph Engine** | React Flow (`@xyflow/react`), Dagre (Auto-layout) |
+| **State & Data** | Zustand, IndexedDB (`idb-keyval`), Web Workers |
+| **Editor & UI** | Monaco Editor, Tailwind CSS v4, Framer Motion, Lucide Icons |
+| **Tooling** | TypeScript, ESLint, PNPM, `html-to-image`, `cmdk` |
+
+## Project Structure
+
+```text
+nodex/
+├── app/                  # Next.js App Router (layout, globals, page)
+├── components/           
+│   ├── editor/           # Monaco JSON Editor integration
+│   ├── graph/            # React Flow canvas, custom JsonNode components
+│   ├── ui/               # Reusable UI (Command Palette, Export Menu, Theme Toggle)
+│   └── workspace/        # Main Layout composing Editor and Graph
+├── lib/                  
+│   ├── json-parser.ts    # JSON to Node/Edge transformer & path tracker
+│   ├── layout-engine.ts  # Dagre directional layout logic
+│   └── graph.worker.ts   # Background Web Worker entry point
+├── store/                
+│   └── graph-store.ts    # Zustand global state & IndexedDB persistence
+└── public/               # Static assets, logos, and OG images
+
+```
 
 ## Getting Started
 
-First, run the development server:
+Because Nodex is strictly local-first and client-side, setup takes seconds. There are no databases to provision or environment variables to configure.
+
+### Prerequisites
+
+* Node.js >= 22
+* PNPM >= 9.x
+
+### Local Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Start the development server with Fast Refresh
 pnpm dev
-# or
-bun dev
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Starts the application in development mode |
+| `pnpm build` | Compiles the optimized static application for production |
+| `pnpm start` | Runs the compiled production application |
+| `pnpm lint` | Runs ESLint checks across the codebase |
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+Nodex is entirely static and client-side, making it incredibly cheap and fast to host.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* **Recommended**: Deploy to **Vercel** with zero configuration. Simply import the repository, and Vercel will automatically detect Next.js and build the static assets.
+* **Alternative**: Host on any static edge network (Cloudflare Pages, Netlify, GitHub Pages).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
