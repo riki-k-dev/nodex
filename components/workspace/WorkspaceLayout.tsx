@@ -89,7 +89,8 @@ export function WorkspaceLayout() {
       </header>
 
       {/* Main Workspace Area */}
-      <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 md:p-6 lg:p-8 min-h-0 overflow-hidden relative">
+      <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 pb-2 md:p-6 md:pb-2 lg:p-8 lg:pb-2 min-h-0 overflow-hidden relative">
+        {" "}
         <AnimatePresence initial={false}>
           {/* Editor Panel */}
           {(viewMode === "split" || viewMode === "editor") && (
@@ -181,9 +182,11 @@ export function WorkspaceLayout() {
             </motion.div>
           )}
         </AnimatePresence>
+      </main>
 
-        {/* Global Footer - Left (Credit) */}
-        <div className="absolute bottom-2 left-4 md:left-8 z-10 text-[10px] text-zinc-400 tracking-wider">
+      {/* Global Footer */}
+      <footer className="w-full pb-3 px-3 sm:px-4 md:px-8 flex flex-row justify-between items-center text-[8px] sm:text-[10px] text-zinc-400 tracking-wider shrink-0 z-10">
+        <div className="truncate pr-2">
           Designed and Developed by{" "}
           <a
             href="https://rikikashyap.dev"
@@ -194,17 +197,13 @@ export function WorkspaceLayout() {
             Riki Kashyap
           </a>
         </div>
-
-        {/* Global Footer - Right (Copyright) */}
-        <div className="absolute bottom-2 right-4 md:right-8 z-10 text-[10px] text-zinc-400 tracking-wider">
-          &copy; 2026. All rights reserved.
-        </div>
-      </main>
+        <div className="shrink-0">&copy; 2026. All rights reserved.</div>
+      </footer>
 
       <CommandPalette />
 
       {!isValidJson && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50">
           <div className="flex flex-col items-center gap-1 px-6 py-3 bg-zinc-50 dark:bg-[#0a0a0a] text-red-600 dark:text-red-500 border-2 border-dashed border-red-500/50 rounded-none font-medium shadow-2xl">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4" />
