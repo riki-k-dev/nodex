@@ -8,6 +8,33 @@ Nodex is a local-first, high-performance developer tool that transforms complex 
 
 [![Visit Site](public/homepage.png)](https://nodex-jv.vercel.app)
 
+## The Problem
+
+When working with large API responses or deeply nested JSON, understanding the structure can become difficult.
+
+A typical JSON payload requires you to:
+
+- Scroll through large text files
+- Search for deeply nested keys
+- Mentally understand parent-child relationships
+- Make small edits while keeping track of where values belong
+
+For me, this became frustrating when working with complex JSON structures.
+
+## The Solution
+
+Nodex turns nested JSON into an interactive visual graph.
+
+Instead of only reading JSON as a large text document, you can see its structure spatially:
+
+- Objects and arrays become graph nodes
+- Relationships between values are represented as edges
+- Nested branches can be collapsed and expanded
+- Primitive values can be edited directly on the graph
+- Changes stay synchronized with the JSON editor
+
+The application runs primarily in the browser and stores workspace state locally.
+
 ## Features
 
 * **Local-First & Secure**: Zero server calls. All JSON parsing, layout calculations, and state persistence happen entirely within your browser using Web Workers and IndexedDB. Your proprietary data never leaves your machine.
@@ -33,72 +60,226 @@ Nodex utilizes a highly decoupled, reactive architecture to ensure maximum perfo
 
 ## Tech Stack
 
-| Category | Technologies |
-| --- | --- |
-| **Framework** | Next.js 16 (App Router), React 19 |
-| **Graph Engine** | React Flow (`@xyflow/react`), Dagre (Auto-layout) |
-| **State & Data** | Zustand, IndexedDB (`idb-keyval`), Web Workers |
-| **Editor & UI** | Monaco Editor, Tailwind CSS v4, Framer Motion, Lucide Icons |
-| **Tooling** | TypeScript, ESLint, PNPM, `html-to-image`, `cmdk` |
+| Category              | Technologies          |
+| --------------------- | --------------------- |
+| Framework             | Next.js 16, React 19  |
+| Language              | TypeScript            |
+| Editor                | Monaco Editor         |
+| Graph                 | React Flow            |
+| Layout                | Dagre                 |
+| State Management      | Zustand               |
+| Persistence           | IndexedDB, idb-keyval |
+| Background Processing | Web Workers           |
+| Styling               | Tailwind CSS          |
+| Animation             | Framer Motion         |
+| Icons                 | Lucide React          |
+| Export                | html-to-image         |
+| Package Manager       | PNPM                  |
 
 ## Project Structure
 
 ```text
 nodex/
-├── app/                  # Next.js App Router (layout, globals, page)
-├── components/           
-│   ├── editor/           # Monaco JSON Editor integration
-│   ├── graph/            # React Flow canvas, custom JsonNode components
-│   ├── ui/               # Reusable UI (Command Palette, Export Menu, Theme Toggle)
-│   └── workspace/        # Main Layout composing Editor and Graph
-├── lib/                  
-│   ├── json-parser.ts    # JSON to Node/Edge transformer & path tracker
-│   ├── layout-engine.ts  # Dagre directional layout logic
-│   └── graph.worker.ts   # Background Web Worker entry point
-├── store/                
-│   └── graph-store.ts    # Zustand global state & IndexedDB persistence
-└── public/               # Static assets, logos, and OG images
-
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
+│
+├── components/
+│   ├── editor/
+│   │   └── JsonEditor.tsx
+│   │
+│   ├── graph/
+│   │   ├── GraphCanvas.tsx
+│   │   └── JsonNode.tsx
+│   │
+│   ├── ui/
+│   │   ├── CommandPalette.tsx
+│   │   ├── CornerBox.tsx
+│   │   ├── ExportMenu.tsx
+│   │   ├── ThemeProvider.tsx
+│   │   └── ThemeToggle.tsx
+│   │
+│   └── workspace/
+│       └── WorkspaceLayout.tsx
+│
+├── lib/
+│   ├── graph.worker.ts
+│   ├── json-parser.ts
+│   └── layout-engine.ts
+│
+├── store/
+│   └── graph-store.ts
+│
+└── public/
+    └── ...
 ```
 
 ## Getting Started
 
-Because Nodex is strictly local-first and client-side, setup takes seconds. There are no databases to provision or environment variables to configure.
-
 ### Prerequisites
 
-* Node.js >= 22
-* PNPM >= 9.x
+* Node.js 22+
+* PNPM 10+
 
-### Local Development
+### Installation
 
 ```bash
-# Install dependencies
+git clone https://github.com/riki-k-dev/nodex.git
+cd nodex
 pnpm install
-
-# Start the development server with Fast Refresh
-pnpm dev
-
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+### Development
 
-## Scripts
+Start the development server:
 
-| Command | Description |
-| --- | --- |
-| `pnpm dev` | Starts the application in development mode |
-| `pnpm build` | Compiles the optimized static application for production |
-| `pnpm start` | Runs the compiled production application |
-| `pnpm lint` | Runs ESLint checks across the codebase |
+```bash
+pnpm dev
+```
 
-## Deployment
+Open:
 
-Nodex is entirely static and client-side, making it incredibly cheap and fast to host.
+```text
+http://localhost:3000
+```
 
-* **Recommended**: Deploy to **Vercel** with zero configuration. Simply import the repository, and Vercel will automatically detect Next.js and build the static assets.
-* **Alternative**: Host on any static edge network (Cloudflare Pages, Netlify, GitHub Pages).
+### Production Build
+
+Create a production build:
+
+```bash
+pnpm build
+```
+
+Run the production build locally:
+
+```bash
+pnpm start
+```
+
+### Lint
+
+Run ESLint:
+
+```bash
+pnpm lint
+```
+
+## Testing
+
+The application was manually tested for:
+
+* JSON persistence after refresh
+* Editing graph values and syncing changes to the editor
+* Persistence of graph edits
+* Collapse and expand behavior
+* Collapse state persistence
+* Keyboard search with `Cmd/Ctrl + K`
+* Search result graph focus
+* Shareable JSON links
+* Opening shared links in a new browser context
+* PNG graph export
+* Invalid share URLs
+* Empty JSON input
+* Invalid JSON input
+* Recovery from invalid to valid JSON
+* Objects and arrays
+* Nested arrays and objects
+* Strings with special characters
+* Numbers
+* Booleans
+* `null` values
+* Production lint and build
+
+Production checks:
+
+```text
+pnpm lint  → passed
+pnpm build → passed
+```
+
+## Deliberately Not Implemented
+
+Nodex is intentionally scoped as a focused local JSON visualization tool.
+
+The following are deliberately outside the current scope:
+
+* User accounts and authentication
+* Cloud-based workspace synchronization
+* Server-side JSON storage
+* Team collaboration
+* Real-time multiplayer editing
+* Database-backed projects
+* Version history
+* Git integration
+* Advanced JSON schema validation
+* Editing object keys directly from graph nodes
+* Editing object and array structures directly from graph nodes
+* Importing files from cloud storage
+* Large-scale enterprise workspace management
+
+These could be added in a larger product, but were intentionally excluded to keep this project focused and finishable.
+
+## Scope Decisions
+
+A few design decisions were made specifically to keep the project manageable:
+
+### Local-first
+
+JSON data is processed in the browser rather than building a backend service for storing user payloads.
+
+This keeps the project focused on the visualization and editing experience.
+
+### Primitive Value Editing
+
+Graph editing is limited to primitive values such as:
+
+* strings
+* numbers
+* booleans
+* null
+
+Objects and arrays are represented visually but are not directly structurally edited from graph nodes.
+
+### URL Sharing
+
+Share links encode the current JSON into the URL rather than introducing a backend sharing system.
+
+This keeps sharing simple while avoiding authentication and database infrastructure.
+
+## What I Learned
+
+Building Nodex required working through several areas beyond basic UI implementation:
+
+* Transforming recursive JSON structures into graph data
+* Tracking object paths for bidirectional editing
+* Working with React Flow nodes and edges
+* Calculating graph layouts with Dagre
+* Moving processing work into a Web Worker
+* Persisting application state with IndexedDB
+* Synchronizing editor and graph state
+* Handling invalid and empty input states
+* Designing recovery paths for failed input
+* Building keyboard-driven search and graph navigation
+* Exporting a rendered graph as an image
+
+## Demo
+
+Live application:
+
+**[https://nodex-jv.vercel.app](https://nodex-jv.vercel.app)**
+
+Try this workflow:
+
+1. Enter a nested JSON payload.
+2. Explore the generated graph.
+3. Collapse and expand nested branches.
+4. Press `Cmd/Ctrl + K` and search for a key or value.
+5. Double-click a primitive value to edit it.
+6. Refresh the page and verify the workspace persists.
+7. Use **Export** to generate a shareable link or PNG.
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the MIT License.
