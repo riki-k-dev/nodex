@@ -1,4 +1,18 @@
-#  Nodex
+Perfect bhai. Ab PR #3 ke liye **README ka setup section genuinely clearer** bana dete hain.
+
+Main existing README ka structure/content preserve kar raha hoon. Sirf:
+
+* setup flow clearer
+* prerequisites mein version check commands
+* installation → development → production → lint flow clearer
+* package manager consistency
+* common command table
+* encoding corruption (`â€”`, `â†’`, etc.) bhi clean kar raha hoon because current README visibly has those characters
+
+## 1. `README.md` ko completely replace karo
+
+````markdown
+# Nodex
 
 > Stop scrolling through endless JSON strings. Visualize, edit, and share massive data structures instantly.
 
@@ -37,12 +51,12 @@ The application runs primarily in the browser and stores workspace state locally
 
 ## Features
 
-* **Local-First & Secure**: Zero server calls. All JSON parsing, layout calculations, and state persistence happen entirely within your browser using Web Workers and IndexedDB. Your proprietary data never leaves your machine.
-* **Bidirectional Editing**: Edit values directly on the canvas nodes, or type in the Monaco Editor—changes sync bidirectionally in real-time.
-* **Freeze-Proof UI**: Heavy JSON parsing and Dagre auto-layout calculations are offloaded to a background Web Worker, ensuring the UI remains buttery smooth at 60fps.
-* **Smart Collapsible Nodes**: Effortlessly navigate massive nested objects by collapsing and expanding tree branches. The graph auto-recalculates its layout instantly.
-* **Global Cmd+K Search**: Instantly find specific keys or values across thousands of nodes with a built-in, keyboard-first command palette that auto-focuses the target node.
-* **Shareable Workspaces**: Generate instant, stateless shareable URLs encoding your entire JSON architecture via Base64, or export high-res transparent PNGs of your graph.
+- **Local-First & Secure**: Zero server calls. All JSON parsing, layout calculations, and state persistence happen entirely within your browser using Web Workers and IndexedDB. Your proprietary data never leaves your machine.
+- **Bidirectional Editing**: Edit values directly on the canvas nodes, or type in the Monaco Editor — changes sync bidirectionally in real-time.
+- **Freeze-Proof UI**: Heavy JSON parsing and Dagre auto-layout calculations are offloaded to a background Web Worker, ensuring the UI remains responsive.
+- **Smart Collapsible Nodes**: Effortlessly navigate massive nested objects by collapsing and expanding tree branches. The graph auto-recalculates its layout instantly.
+- **Global Cmd+K Search**: Instantly find specific keys or values across thousands of nodes with a built-in, keyboard-first command palette that auto-focuses the target node.
+- **Shareable Workspaces**: Generate instant, stateless shareable URLs encoding your entire JSON architecture via Base64, or export high-resolution transparent PNGs of your graph.
 
 ## Architecture & Workflow
 
@@ -60,21 +74,21 @@ Nodex utilizes a highly decoupled, reactive architecture to ensure maximum perfo
 
 ## Tech Stack
 
-| Category              | Technologies          |
-| --------------------- | --------------------- |
-| Framework             | Next.js 16, React 19  |
-| Language              | TypeScript            |
-| Editor                | Monaco Editor         |
-| Graph                 | React Flow            |
-| Layout                | Dagre                 |
-| State Management      | Zustand               |
-| Persistence           | IndexedDB, idb-keyval |
-| Background Processing | Web Workers           |
-| Styling               | Tailwind CSS          |
-| Animation             | Framer Motion         |
-| Icons                 | Lucide React          |
-| Export                | html-to-image         |
-| Package Manager       | PNPM                  |
+| Category | Technologies |
+| --- | --- |
+| Framework | Next.js 16, React 19 |
+| Language | TypeScript |
+| Editor | Monaco Editor |
+| Graph | React Flow |
+| Layout | Dagre |
+| State Management | Zustand |
+| Persistence | IndexedDB, idb-keyval |
+| Background Processing | Web Workers |
+| Styling | Tailwind CSS |
+| Animation | Framer Motion |
+| Icons | Lucide React |
+| Export | html-to-image |
+| Package Manager | PNPM |
 
 ## Project Structure
 
@@ -113,16 +127,31 @@ nodex/
 │
 └── public/
     └── ...
-```
+````
 
 ## Getting Started
 
+Follow these steps to run Nodex locally.
+
 ### Prerequisites
 
-* Node.js 22+
-* PNPM 10+
+Make sure the following are installed:
+
+* Node.js 22 or newer
+* PNPM 10 or newer
+* Git
+
+You can verify your installed versions with:
+
+```bash
+node --version
+pnpm --version
+git --version
+```
 
 ### Installation
+
+Clone the repository and install the dependencies:
 
 ```bash
 git clone https://github.com/riki-k-dev/nodex.git
@@ -132,21 +161,23 @@ pnpm install
 
 ### Development
 
-Start the development server:
+Start the local development server:
 
 ```bash
 pnpm dev
 ```
 
-Open:
+Once the server starts, open:
 
 ```text
 http://localhost:3000
 ```
 
+The development server supports hot reload, so changes made to the source code will be reflected automatically.
+
 ### Production Build
 
-Create a production build:
+Create an optimized production build:
 
 ```bash
 pnpm build
@@ -158,13 +189,28 @@ Run the production build locally:
 pnpm start
 ```
 
+Then open:
+
+```text
+http://localhost:3000
+```
+
 ### Lint
 
-Run ESLint:
+Run ESLint to check the project for linting issues:
 
 ```bash
 pnpm lint
 ```
+
+### Available Commands
+
+| Command      | Purpose                          |
+| ------------ | -------------------------------- |
+| `pnpm dev`   | Start the development server     |
+| `pnpm build` | Create a production build        |
+| `pnpm start` | Run the production build locally |
+| `pnpm lint`  | Run ESLint                       |
 
 ## Testing
 
