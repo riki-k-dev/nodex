@@ -1,17 +1,3 @@
-Perfect bhai. Ab PR #3 ke liye **README ka setup section genuinely clearer** bana dete hain.
-
-Main existing README ka structure/content preserve kar raha hoon. Sirf:
-
-* setup flow clearer
-* prerequisites mein version check commands
-* installation → development → production → lint flow clearer
-* package manager consistency
-* common command table
-* encoding corruption (`â€”`, `â†’`, etc.) bhi clean kar raha hoon because current README visibly has those characters
-
-## 1. `README.md` ko completely replace karo
-
-````markdown
 # Nodex
 
 > Stop scrolling through endless JSON strings. Visualize, edit, and share massive data structures instantly.
