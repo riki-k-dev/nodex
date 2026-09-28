@@ -37,20 +37,20 @@ export function WorkspaceLayout() {
       try {
         const decodedJson = decodeURIComponent(atob(sharedData));
         setJsonText(decodedJson);
-      } catch {
-        // Ignore invalid share data and keep the current workspace.
-      } finally {
         window.history.replaceState(
           {},
           document.title,
           window.location.pathname,
         );
+      } catch (error) {
+        console.error("Failed to parse shared data", error);
       }
     }
   }, [setJsonText]);
 
   return (
     <div className="h-screen w-full bg-zinc-100 dark:bg-black text-zinc-900 dark:text-zinc-100 flex flex-col font-mono transition-colors duration-200 overflow-hidden">
+      {/* Header */}
       <header className="h-14 border-b border-zinc-300 dark:border-zinc-900 px-7 flex items-center justify-between bg-white dark:bg-black/50 backdrop-blur-md shrink-0 z-30">
         <div className="flex items-center gap-1.5">
           <Image
@@ -83,14 +83,16 @@ export function WorkspaceLayout() {
               </kbd>
             </div>
           </div>
-
           <ThemeToggle />
           <ExportMenu />
         </div>
       </header>
 
+      {/* Main Workspace Area */}
       <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 pb-2 md:p-6 md:pb-2 lg:p-8 lg:pb-2 min-h-0 overflow-hidden relative">
+        {" "}
         <AnimatePresence initial={false}>
+          {/* Editor Panel */}
           {(viewMode === "split" || viewMode === "editor") && (
             <motion.div
               key="editor-panel"
@@ -106,15 +108,15 @@ export function WorkspaceLayout() {
                   <h2 className="text-xs font-bold uppercase text-zinc-700 dark:text-zinc-300 tracking-widest">
                     Editor
                   </h2>
-
                   <div className="flex items-center gap-3">
                     <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
                       payload.json
                     </span>
-
                     <button
                       onClick={() =>
-                        setViewMode(viewMode === "editor" ? "split" : "editor")
+                        setViewMode(
+                          viewMode === "editor" ? "split" : "editor",
+                        )
                       }
                       className="p-1 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
                     >
@@ -126,7 +128,6 @@ export function WorkspaceLayout() {
                     </button>
                   </div>
                 </div>
-
                 <div className="flex-1 w-full min-h-0 bg-white dark:bg-[#1e1e1e] border border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden flex flex-col">
                   <JsonEditor
                     value={jsonText}
@@ -137,6 +138,7 @@ export function WorkspaceLayout() {
             </motion.div>
           )}
 
+          {/* Graph Engine Panel */}
           {(viewMode === "split" || viewMode === "graph") && (
             <motion.div
               key="graph-panel"
@@ -155,12 +157,10 @@ export function WorkspaceLayout() {
                       <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
                     )}
                   </h2>
-
                   <div className="flex items-center gap-3">
                     <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
                       Node View
                     </span>
-
                     <button
                       onClick={() =>
                         setViewMode(viewMode === "graph" ? "split" : "graph")
@@ -175,11 +175,8 @@ export function WorkspaceLayout() {
                     </button>
                   </div>
                 </div>
-
                 <div
-                  className={`relative flex-1 w-full min-h-0 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden flex flex-col bg-zinc-50 dark:bg-[#0c0c0c] transition-opacity duration-300 ${
-                    isProcessing ? "opacity-50" : "opacity-100"
-                  }`}
+                  className={`relative flex-1 w-full min-h-0 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden flex flex-col bg-zinc-50 dark:bg-[#0c0c0c] transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"}`}
                 >
                   <GraphCanvas />
                 </div>
@@ -189,6 +186,7 @@ export function WorkspaceLayout() {
         </AnimatePresence>
       </main>
 
+      {/* Global Footer */}
       <footer className="w-full pb-3 px-3 sm:px-4 md:px-8 flex flex-row justify-between items-center text-[8px] sm:text-[10px] text-zinc-400 tracking-wider shrink-0 z-10">
         <div className="truncate pr-2">
           Designed and Developed by{" "}
@@ -201,21 +199,28 @@ export function WorkspaceLayout() {
             Riki Kashyap
           </a>
         </div>
-
         <div className="shrink-0">&copy; 2026. All rights reserved.</div>
       </footer>
 
       <CommandPalette />
 
       {!isValidJson && (
-        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50">
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50"
+        >
           <div className="flex flex-col items-center gap-1 px-6 py-3 bg-zinc-50 dark:bg-[#0a0a0a] text-red-600 dark:text-red-500 border-2 border-dashed border-red-500/50 rounded-none font-medium shadow-2xl">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
+              <AlertCircle className="w-4 h-4" aria-hidden="true" />
               <span className="text-sm uppercase tracking-widest font-bold">
                 Invalid JSON
               </span>
             </div>
+
+            <span className="text-[10px] text-zinc-600 dark:text-zinc-400 max-w-md text-center text-balance">
+              Fix the JSON in the editor to generate the graph.
+            </span>
 
             {parseError && (
               <span className="text-[10px] text-zinc-500 dark:text-zinc-400 max-w-md text-center text-balance">
